@@ -46,7 +46,16 @@ defmodule PasswordGenerator do
   end
 
   @type options :: maybe_improper_list()
-  @spec generate_random(options) :: String.t()
+
+  @spec generate_random(
+          atom
+          | %{
+              :character_count => non_neg_integer,
+              :numbers => boolean,
+              :symbols => boolean,
+              optional(any) => any
+            }
+        ) :: binary
   def generate_random(options) do
     # Length 8-100
     # Options: Symbols / Numbers
@@ -55,30 +64,20 @@ defmodule PasswordGenerator do
     # Ex: 6Fu7P9KnZpaKkYVyZogTKNCVtsGfPs8JpYGcFZd - numbers
     # Ex: K9*z@cLETLXreigcgiq*mWPEQavCGojRTZnDhG2 - numbers and symbols
 
-    lowercase_stream =
-      Stream.unfold(random_lowercase(options.character_count), &String.next_codepoint/1)
-
-    uppercase_stream =
-      Stream.unfold(random_uppercase(options.character_count), &String.next_codepoint/1)
-
-    symbol_stream =
-      Stream.unfold(random_symbol(options.character_count), &String.next_codepoint/1)
-
-    number_stream =
-      Stream.unfold(random_number(options.character_count), &String.next_codepoint/1)
-
-    Enum.concat(lowercase_stream, uppercase_stream)
-    |> include_symbols(options.symbols, symbol_stream)
-    |> include_numbers(options.numbers, number_stream)
+    (random_lowercase(options.character_count) <> random_uppercase(options.character_count))
+    |> include_symbols(options.symbols, random_symbol(options.character_count))
+    |> include_numbers(options.numbers, random_number(options.character_count))
+    |> IO.inspect()
+    |> String.split("", trim: true)
     |> Enum.shuffle()
     |> Enum.take_random(options.character_count)
     |> Enum.join()
   end
 
-  defp include_symbols(set, true, symbol_stream), do: Enum.concat(set, symbol_stream)
+  defp include_symbols(set, true, symbol_stream), do: set <> symbol_stream
   defp include_symbols(set, false, _symbol_stream), do: set
 
-  defp include_numbers(set, true, number_stream), do: Enum.concat(set, number_stream)
+  defp include_numbers(set, true, number_stream), do: set <> number_stream
   defp include_numbers(set, false, _number_stream), do: set
 
   defp random_symbol(length \\ 1),
