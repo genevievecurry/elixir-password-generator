@@ -1,9 +1,8 @@
 defmodule PasswordOpts do
   defstruct word_count: 3,
             character_count: 50,
-            upcase: false,
-            words: false,
-            separator_type: :none,
+            uppercase: true,
+            separator_type: :digits,
             symbols: true,
             numbers: true
 end
@@ -24,25 +23,32 @@ defmodule PasswordGenerator do
   """
 
   require Integer
+  use Agent
 
   # @legal_symbols ["@", "%", "+", "!", "#", "$", "?", "-", "_", "."]
   @legal_symbols [64, 37, 43, 33, 35, 36, 63, 45, 95, 46]
+  @legal_digits [0..9]
 
   @separator_types %{
     none: "",
     hyphens: "-",
     underscores: "_",
     periods: ".",
-    spaces: "_",
-    digits: [0..9],
-    special_characters: @legal_symbols
+    spaces: " ",
+    digits: @legal_digits,
+    symbols: @legal_symbols
   }
 
-  @spec memorable :: String.t()
-  def memorable do
-    # How many words 3-15
-    # Options: Capitalize / Full Words
-    # Separator Type
+  @spec start_link() :: {:error, any} | {:ok, pid}
+  def start_link() do
+    Agent.start_link(fn -> word_list() end, name: __MODULE__)
+  end
+
+  @spec word_list :: [binary]
+  def word_list() do
+    # https://github.com/dwyl/english-words
+    File.read!("priv/static/words_alpha.txt")
+    |> String.split(~r/\n/)
   end
 
   @type options :: maybe_improper_list()
@@ -67,26 +73,70 @@ defmodule PasswordGenerator do
     (random_lowercase(options.character_count) <> random_uppercase(options.character_count))
     |> include_symbols(options.symbols, random_symbol(options.character_count))
     |> include_numbers(options.numbers, random_number(options.character_count))
-    |> IO.inspect()
     |> String.split("", trim: true)
     |> Enum.shuffle()
     |> Enum.take_random(options.character_count)
     |> Enum.join()
   end
 
-  defp include_symbols(set, true, symbol_stream), do: set <> symbol_stream
-  defp include_symbols(set, false, _symbol_stream), do: set
+  @spec generate_memorable(any) :: any
+  def generate_memorable(options) do
+    # How many words 3-15
+    # Options: Capitalize / Full Words
+    # Separator Type
+    # sir-vaff-ghir
+    # figurine-having-DROOPY
+    # winy poseur compline
+    # funerary.shift.MAXIMAL
 
-  defp include_numbers(set, true, number_stream), do: set <> number_stream
-  defp include_numbers(set, false, _number_stream), do: set
+    PasswordGenerator.start_link()
+
+    separator = @separator_types[options.separator_type]
+
+    IO.inspect(separator)
+
+    random_word(options.word_count)
+    |> use_uppercase(options.uppercase, options.word_count)
+    |> use_separator(separator)
+  end
+
+  defp use_separator(words, separator) do
+    cond do
+      separator === @legal_symbols ->
+        Enum.map(words, fn word -> word <> random_symbol() end)
+        |> Enum.join()
+
+      separator === @legal_digits ->
+        Enum.map(words, fn word -> word <> random_number() end)
+        |> Enum.join()
+
+      true ->
+        Enum.join(words, separator)
+    end
+  end
+
+  defp use_uppercase(set, true, count) do
+    Enum.map_every(set, Enum.random(0..count), fn word -> String.upcase(word) end)
+  end
+
+  defp use_uppercase(set, false, _count), do: set
+
+  defp include_symbols(set, true, string), do: set <> string
+  defp include_symbols(set, false, _string), do: set
+
+  defp include_numbers(set, true, string), do: set <> string
+  defp include_numbers(set, false, _string), do: set
+
+  defp random_word(count),
+    do: for(_int <- 1..count, do: Agent.get(__MODULE__, &Enum.random/1) |> String.trim())
 
   defp random_symbol(length \\ 1),
     do: for(_int <- 1..length, do: <<Enum.random(@legal_symbols)>>) |> Enum.join()
 
-  defp random_uppercase(length \\ 1),
+  defp random_uppercase(length),
     do: for(_int <- 1..length, do: <<Enum.random(65..90)>>) |> Enum.join()
 
-  defp random_lowercase(length \\ 1),
+  defp random_lowercase(length),
     do: for(_int <- 1..length, do: <<Enum.random(97..122)>>) |> Enum.join()
 
   defp random_number(length \\ 1) do
@@ -125,6 +175,27 @@ defmodule PasswordGenerator do
     end
   end
 
+  # none: "",
+  # hyphens: "-",
+  # underscores: "_",
+  # periods: ".",
+  # spaces: "_",
+  # digits: [0..9],
+  # symbols: @legal_symbols
+
+  def memorable_prompt do
+    if IO.gets("Use defaults? Y/N\n") |> bool_input() do
+      generate_memorable(%PasswordOpts{})
+    else
+      %PasswordOpts{
+        word_count: IO.gets("How many words? Between 3 - 15\n") |> length_input(),
+        uppercase: IO.gets("Include uppercase? Y/N\n") |> bool_input(),
+        separator_type: IO.gets("What type of separator?\n") |> separator_input()
+      }
+      |> generate_memorable()
+    end
+  end
+
   def random_prompt do
     if IO.gets("Use defaults? Y/N\n") |> bool_input() do
       generate_random(%PasswordOpts{})
@@ -136,10 +207,6 @@ defmodule PasswordGenerator do
       }
       |> generate_random()
     end
-  end
-
-  def memorable_prompt do
-    nil
   end
 
   def pin_prompt do
@@ -155,6 +222,10 @@ defmodule PasswordGenerator do
   end
 
   defp length_input(value) when is_integer(value), do: value
+
+  defp separator_input(value) when is_bitstring(value) do
+    value |> String.trim() |> String.to_atom()
+  end
 
   defp bool_input(value) when is_bitstring(value) do
     Enum.member?(["y\n", "yes\n", "\n"], String.downcase(value))
