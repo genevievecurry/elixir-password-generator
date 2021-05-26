@@ -1,7 +1,6 @@
 defmodule PasswordGenerator.Modifier do
-  require PasswordGenerator.Constant
-  alias PasswordGenerator.Random, as: Random
-  alias PasswordGenerator.Constant, as: Constant
+  alias PasswordGenerator.Random
+  alias PasswordGenerator.Constant
 
   # ["@", "%", "+", "!", "#", "$", "?", "-", "_", "."]
   @legal_symbols Constant.legal_symbols()
@@ -10,11 +9,11 @@ defmodule PasswordGenerator.Modifier do
   def use_separator(words, separator) do
     cond do
       separator === @legal_symbols ->
-        Enum.map(words, fn word -> word <> Random.r_symbol() end)
+        Enum.map(words, fn word -> word <> Random.new(:symbol) end)
         |> Enum.join()
 
       separator === @legal_digits ->
-        Enum.map(words, fn word -> word <> Random.r_number() end)
+        Enum.map(words, fn word -> word <> Random.new(:number) end)
         |> Enum.join()
 
       separator === nil ->
@@ -34,6 +33,7 @@ defmodule PasswordGenerator.Modifier do
   def include_symbols(set, true, string), do: set <> string
   def include_symbols(set, false, _string), do: set
 
+  @spec include_numbers(any, boolean, any) :: any
   def include_numbers(set, true, string), do: set <> string
   def include_numbers(set, false, _string), do: set
 end

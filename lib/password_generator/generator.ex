@@ -1,11 +1,8 @@
 defmodule PasswordGenerator.Generator do
-  require PasswordGenerator.Constant
-  require PasswordGenerator.Modifier
-  require PasswordGenerator.Validator
-  alias PasswordGenerator.Constant, as: Constant
-  alias PasswordGenerator.Random, as: Random
-  alias PasswordGenerator.Modifier, as: Modifier
-  alias PasswordGenerator.Validator, as: Validator
+  alias PasswordGenerator.Constant
+  alias PasswordGenerator.Random
+  alias PasswordGenerator.Modifier
+  alias PasswordGenerator.Validator
 
   @separator_types Constant.separator_types()
 
@@ -26,9 +23,10 @@ defmodule PasswordGenerator.Generator do
     # Ex: 6Fu7P9KnZpaKkYVyZogTKNCVtsGfPs8JpYGcFZd - numbers
     # Ex: K9*z@cLETLXreigcgiq*mWPEQavCGojRTZnDhG2 - numbers and symbols
 
-    (Random.r_lowercase(options.character_count) <> Random.r_uppercase(options.character_count))
-    |> Modifier.include_symbols(options.symbols, Random.r_symbol(options.character_count))
-    |> Modifier.include_numbers(options.numbers, Random.r_number(options.character_count))
+    (Random.new(:lowercase, options.character_count) <>
+       Random.new(:uppercase, options.character_count))
+    |> Modifier.include_symbols(options.symbols, Random.new(:symbol, options.character_count))
+    |> Modifier.include_numbers(options.numbers, Random.new(:number, options.character_count))
     |> String.split("", trim: true)
     |> Enum.shuffle()
     |> Enum.take_random(options.character_count)
@@ -53,11 +51,11 @@ defmodule PasswordGenerator.Generator do
     # winy poseur compline
     # funerary.shift.MAXIMAL
 
-    Random.start_word_link()
+    Random.start_link()
 
     separator = @separator_types[options.separator_type]
 
-    Random.r_word(options.word_count)
+    Random.new(:word, options.word_count)
     |> Modifier.use_uppercase(options.uppercase, options.word_count)
     |> Modifier.use_separator(separator)
   end
@@ -66,6 +64,6 @@ defmodule PasswordGenerator.Generator do
   @spec pin(atom | %{:character_count => integer, optional(any) => any}) :: binary
   def pin(options) do
     Validator.check_length_input(options.character_count, 3, 16)
-    |> Random.r_number()
+    |> then(&Random.new(:number, &1))
   end
 end

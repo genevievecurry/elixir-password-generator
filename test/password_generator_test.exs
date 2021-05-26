@@ -5,7 +5,7 @@ defmodule PasswordGeneratorTest do
   @min 1
   @max 16
 
-  import PasswordOpts
+  import PasswordGenerator.Options
 
   test "generates random pin with default options" do
     pin = PasswordGenerator.pin()
@@ -14,7 +14,7 @@ defmodule PasswordGeneratorTest do
 
   @tag :pending
   test "generates random pin with too many characters throws error" do
-    bad_input = %PasswordOpts{character_count: 122}
+    bad_input = %Options{character_count: 122}
     assert :error, PasswordGenerator.pin(bad_input)
   end
 end

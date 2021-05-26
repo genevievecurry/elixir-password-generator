@@ -1,8 +1,7 @@
 defmodule PasswordGenerator.Prompt do
-  require PasswordGenerator.Validator
-  require PasswordGenerator.Generator
-  alias PasswordGenerator.Validator, as: Validator
-  alias PasswordGenerator.Generator, as: Generator
+  alias PasswordGenerator.Validator
+  alias PasswordGenerator.Generator
+  alias PasswordGenerator.Options
 
   @spec start(any) :: binary
   def start(_input \\ nil) do
@@ -24,9 +23,9 @@ defmodule PasswordGenerator.Prompt do
 
   def memorable_prompt do
     if IO.gets("Use defaults? Y/N\n") |> Validator.bool_input() do
-      Generator.memorable(%PasswordOpts{})
+      Generator.memorable(%Options{})
     else
-      %PasswordOpts{
+      %Options{
         word_count:
           IO.gets("How many words? Between 3 - 15\n") |> Validator.check_length_input(3, 15),
         uppercase: IO.gets("Include uppercase? Y/N\n") |> Validator.bool_input(),
@@ -38,9 +37,9 @@ defmodule PasswordGenerator.Prompt do
 
   def random_prompt do
     if IO.gets("Use defaults? Y/N\n") |> Validator.bool_input() do
-      Generator.random(%PasswordOpts{})
+      Generator.random(%Options{})
     else
-      %PasswordOpts{
+      %Options{
         character_count:
           IO.gets("Select password length between 8 - 100:\n")
           |> Validator.check_length_input(8, 100),
@@ -53,9 +52,9 @@ defmodule PasswordGenerator.Prompt do
 
   def pin_prompt do
     if IO.gets("Use defaults? Y/N\n") |> Validator.bool_input() do
-      Generator.pin(%PasswordOpts{})
+      Generator.pin(%Options{})
     else
-      %PasswordOpts{
+      %Options{
         character_count:
           IO.gets("Select pin length between 3 - 16:\n")
           |> Validator.check_length_input(3, 16)

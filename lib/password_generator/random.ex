@@ -1,45 +1,61 @@
 defmodule PasswordGenerator.Random do
   use Agent
-  require PasswordGenerator.Constant
+  alias PasswordGenerator.Constant
 
   # ["@", "%", "+", "!", "#", "$", "?", "-", "_", "."]
-  @legal_symbols PasswordGenerator.Constant.legal_symbols()
-  @legal_digits PasswordGenerator.Constant.legal_digits()
+  @legal_symbols Constant.legal_symbols()
+  @legal_digits Constant.legal_digits()
+  # https://github.com/dwyl/english-words
+  @word_list File.read!("priv/static/words_mini.txt") |> String.split(~r/\n/)
 
-  @spec start_word_link() :: {:error, any} | {:ok, pid}
-  def start_word_link() do
+  @spec start_link() :: {:error, any} | {:ok, pid}
+  def start_link() do
     Agent.start_link(fn -> word_list() end, name: __MODULE__)
   end
 
   @spec word_list :: [binary]
   def word_list() do
-    # https://github.com/dwyl/english-words
-    File.read!("priv/static/words_alpha.txt")
-    |> String.split(~r/\n/)
+    @word_list
   end
 
-  @spec r_word(integer) :: list
-  def r_word(count),
-    do: for(_int <- 1..count, do: Agent.get(__MODULE__, &Enum.random/1) |> String.trim())
+  @spec new(atom, integer) :: list
+  def new(type, length \\ 1)
 
-  @spec r_symbol(integer) :: binary
-  def r_symbol(length \\ 1),
-    do: for(_int <- 1..length, do: <<Enum.random(@legal_symbols)>>) |> Enum.join()
-
-  def r_number(length \\ 1)
-
-  @spec r_number(integer) :: binary
-  def r_number(length) when is_integer(length) do
-    for(_int <- 1..length, do: Enum.random(@legal_digits)) |> Enum.join()
+  def new(:word, count) do
+    for _int <- 1..count do
+      __MODULE__
+      |> Agent.get(&Enum.random/1)
+      |> String.trim()
+    end
   end
 
-  def r_number(length) when length == :error, do: :error
+  def new(:symbol, length) do
+    for _int <- 1..length do
+      <<Enum.random(@legal_symbols)>>
+    end
+    |> Enum.join()
+  end
 
-  @spec r_uppercase(integer) :: binary
-  def r_uppercase(length),
-    do: for(_int <- 1..length, do: <<Enum.random(65..90)>>) |> Enum.join()
+  def new(:number, length) when is_integer(length) do
+    for _int <- 1..length do
+      Enum.random(@legal_digits)
+    end
+    |> Enum.join()
+  end
 
-  @spec r_lowercase(integer) :: binary
-  def r_lowercase(length),
-    do: for(_int <- 1..length, do: <<Enum.random(97..122)>>) |> Enum.join()
+  def new(:number, length) when length == :error, do: :error
+
+  def new(:uppercase, length) do
+    for _int <- 1..length do
+      <<Enum.random(65..90)>>
+    end
+    |> Enum.join()
+  end
+
+  def new(:lowercase, length) do
+    for _int <- 1..length do
+      <<Enum.random(97..122)>>
+    end
+    |> Enum.join()
+  end
 end

@@ -1,18 +1,5 @@
-defmodule PasswordOpts do
-  defstruct word_count: 3,
-            character_count: 8,
-            uppercase: true,
-            separator_type: :digits,
-            symbols: true,
-            numbers: true
-end
-
 defmodule PasswordGenerator do
   @moduledoc """
-  Documentation for `PasswordGenerator`.
-  """
-
-  @doc """
   A basic password generation module that can create three types of passwords: Random, Memorable, and PIN.
 
   - Random passwords are hard to crack and hard to remember.
@@ -25,13 +12,10 @@ defmodule PasswordGenerator do
 
 
   """
+  alias PasswordGenerator.Generator
+  alias PasswordGenerator.Options
 
-  # require Integer
-
-  require PasswordGenerator.Generator
-  alias PasswordGenerator.Generator, as: Generator
-
-  def random(options \\ %PasswordOpts{}), do: Generator.random(options)
-  def memorable(options \\ %PasswordOpts{}), do: Generator.memorable(options)
-  def pin(options \\ %PasswordOpts{}), do: Generator.pin(options)
+  def random(options \\ %Options{}), do: Generator.random(options)
+  def memorable(options \\ %Options{}), do: Generator.memorable(options)
+  def pin(options \\ %Options{}), do: Generator.pin(options)
 end

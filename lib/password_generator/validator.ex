@@ -10,6 +10,7 @@ defmodule PasswordGenerator.Validator do
     end
   end
 
+  @spec check_length_input(binary | integer, any, any) :: :error | integer
   def check_length_input(value, min, max) when is_bitstring(value) do
     parsed_value = parse_integer(value)
 
@@ -37,6 +38,7 @@ defmodule PasswordGenerator.Validator do
     value |> String.trim() |> String.to_atom()
   end
 
+  @spec bool_input(boolean | binary) :: boolean
   def bool_input(value) when is_bitstring(value) do
     Enum.member?(["y\n", "yes\n", "\n"], String.downcase(value))
   end
