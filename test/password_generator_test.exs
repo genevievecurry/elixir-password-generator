@@ -2,19 +2,30 @@ defmodule PasswordGeneratorTest do
   use ExUnit.Case
   # doctest PasswordGenerator
 
-  @min 1
-  @max 16
+  alias PasswordGenerator.Options
+  alias PasswordGenerator.Constant
 
-  import PasswordGenerator.Options
+  @default_options %Options{}
+  @legal_length Constant.legal_length()
 
-  test "generates random pin with default options" do
+  test "generates pin with default options" do
     pin = PasswordGenerator.pin()
     assert Regex.match?(~r/(\d){3,16}/, pin) == true
   end
 
-  @tag :pending
-  test "generates random pin with too many characters throws error" do
-    bad_input = %Options{character_count: 122}
-    assert :error, PasswordGenerator.pin(bad_input)
+  test "generates pin with legal length" do
+    good_options = %Options{pin_length: @default_options.pin_length}
+    pin = PasswordGenerator.pin(good_options)
+    assert String.length(pin) == @default_options.pin_length
+  end
+
+  test "generates memorable password with default options" do
+    memorable = PasswordGenerator.memorable()
+    assert Regex.scan(~r/[[:alpha:]]+/u, memorable) |> Enum.count() == @default_options.word_count
+  end
+
+  test "generates random password with default options" do
+    random = PasswordGenerator.random()
+    assert String.length(random) == @default_options.character_count
   end
 end

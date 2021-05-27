@@ -36,4 +36,10 @@ defmodule PasswordGenerator.Modifier do
   @spec include_numbers(any, boolean, any) :: any
   def include_numbers(set, true, string), do: set <> string
   def include_numbers(set, false, _string), do: set
+
+  def append_number(string, true), do: string <> Random.new(:number)
+  def append_number(string, false), do: string
+
+  def append_symbol(string, true), do: string <> Random.new(:symbol)
+  def append_symbol(string, false), do: string
 end

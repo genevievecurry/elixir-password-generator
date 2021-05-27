@@ -2,6 +2,9 @@ defmodule PasswordGenerator.Prompt do
   alias PasswordGenerator.Validator
   alias PasswordGenerator.Generator
   alias PasswordGenerator.Options
+  alias PasswordGenerator.Constant
+
+  @legal_length Constant.legal_length()
 
   @spec start(any) :: binary
   def start(_input \\ nil) do
@@ -22,27 +25,36 @@ defmodule PasswordGenerator.Prompt do
   end
 
   def memorable_prompt do
+    min = @legal_length.memorable[:min]
+    max = @legal_length.memorable[:max]
+
     if IO.gets("Use defaults? Y/N\n") |> Validator.bool_input() do
       Generator.memorable(%Options{})
     else
       %Options{
         word_count:
-          IO.gets("How many words? Between 3 - 15\n") |> Validator.check_length_input(3, 15),
+          IO.gets("How many words? Between #{min} - #{max}\n")
+          |> Validator.check_length_input(min, max),
         uppercase: IO.gets("Include uppercase? Y/N\n") |> Validator.bool_input(),
-        separator_type: IO.gets("What type of separator?\n") |> Validator.separator_input()
+        separator_type: IO.gets("What type of separator?\n") |> Validator.separator_input(),
+        numbers: IO.gets("Append number? Y/N\n") |> Validator.bool_input(),
+        symbols: IO.gets("Append symbol? Y/N\n") |> Validator.bool_input()
       }
       |> Generator.memorable()
     end
   end
 
   def random_prompt do
+    min = @legal_length.random[:min]
+    max = @legal_length.random[:max]
+
     if IO.gets("Use defaults? Y/N\n") |> Validator.bool_input() do
       Generator.random(%Options{})
     else
       %Options{
         character_count:
-          IO.gets("Select password length between 8 - 100:\n")
-          |> Validator.check_length_input(8, 100),
+          IO.gets("Select password length between #{min} - #{max}:\n")
+          |> Validator.check_length_input(min, max),
         symbols: IO.gets("Include symbols? Y/N\n") |> Validator.bool_input(),
         numbers: IO.gets("Include numbers? Y/N\n") |> Validator.bool_input()
       }
@@ -51,13 +63,16 @@ defmodule PasswordGenerator.Prompt do
   end
 
   def pin_prompt do
+    min = @legal_length.pin[:min]
+    max = @legal_length.pin[:max]
+
     if IO.gets("Use defaults? Y/N\n") |> Validator.bool_input() do
       Generator.pin(%Options{})
     else
       %Options{
-        character_count:
-          IO.gets("Select pin length between 3 - 16:\n")
-          |> Validator.check_length_input(3, 16)
+        pin_length:
+          IO.gets("Select pin length between #{min} - #{max}:\n")
+          |> Validator.check_length_input(min, max)
       }
       |> Generator.pin()
     end

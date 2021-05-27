@@ -1,5 +1,9 @@
 # PasswordGenerator
 
+## ⚠️ FYI ⚠️
+
+Under development :)
+
 ## How do
 
 ```
@@ -24,20 +28,3 @@ What type of password do you need?
 Type 1, 2 or 3 and press return
 
 ```
-## Installation
-
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `password_generator` to your list of dependencies in `mix.exs`:
-
-```elixir
-def deps do
-  [
-    {:password_generator, "~> 0.1.0"}
-  ]
-end
-```
-
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at [https://hexdocs.pm/password_generator](https://hexdocs.pm/password_generator).
-
