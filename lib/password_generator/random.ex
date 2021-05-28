@@ -6,7 +6,7 @@ defmodule PasswordGenerator.Random do
   @legal_symbols Constant.legal_symbols()
   @legal_digits Constant.legal_digits()
   # https://github.com/dwyl/english-words
-  @word_list File.read!("priv/static/words_mini.txt") |> String.split(~r/\n/)
+  @word_list File.read!("priv/static/words_alpha.txt") |> String.split(~r/\n/)
 
   @spec start_link() :: {:error, any} | {:ok, pid}
   def start_link() do
