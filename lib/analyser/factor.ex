@@ -8,15 +8,15 @@ defmodule Analyser.Factor do
     :numbers,
     :symbols,
     :middle,
-    :minimum_req,
+    :minimum_requirements,
     :letters_only,
-    :repeat_char,
+    :repeat_characters,
     :consecutive_lowercase,
     :consecutive_uppercase,
     :consecutive_numbers,
-    :seq_numbers,
-    :seq_alpha,
-    :seq_symbols
+    :sequential_numbers,
+    :sequential_alpha,
+    :sequential_symbols
   ]
 
   def check(type, password)
@@ -56,7 +56,7 @@ defmodule Analyser.Factor do
     {:addition, 0}
   end
 
-  def check(:minimum_req, password) do
+  def check(:minimum_requirements, password) do
     # At least 1 number, 1 special character, mix of upper and lower characters, between 8-100 characters long
     strong_password_regex = ~r/((?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W]).{8,100})/u
 
@@ -86,9 +86,7 @@ defmodule Analyser.Factor do
     end
   end
 
-  def check(:repeat_char, password) do
-    length = String.length(password)
-
+  def check(:repeat_characters, password) do
     repeated =
       String.split(password, "", trim: true)
       |> Enum.frequencies_by(&to_string(&1))
@@ -96,7 +94,7 @@ defmodule Analyser.Factor do
       |> Enum.filter(fn x -> x > 1 end)
       |> Enum.reduce(0, fn int, acc -> int + acc end)
 
-    {:deduction, round(length / repeated) * -1}
+    {:deduction, round(repeated / 2) * -1}
   end
 
   def check(:consecutive_lowercase, password) do
@@ -107,7 +105,7 @@ defmodule Analyser.Factor do
     score =
       Regex.scan(~r/[[:lower:]]{2,}(?=[a-z])/u, password)
       |> List.flatten()
-      |> Enum.map(fn set -> String.length(set) * 2 end)
+      |> Enum.map(fn set -> String.length(set) end)
       |> Enum.reduce(0, fn int, acc -> int + acc end)
 
     {:deduction, score * -1}
@@ -117,7 +115,7 @@ defmodule Analyser.Factor do
     score =
       Regex.scan(~r/[[:upper:]]{2,}(?=[A-Z])/u, password)
       |> List.flatten()
-      |> Enum.map(fn set -> String.length(set) * 2 end)
+      |> Enum.map(fn set -> String.length(set) end)
       |> Enum.reduce(0, fn int, acc -> int + acc end)
 
     {:deduction, score * -1}
@@ -127,13 +125,13 @@ defmodule Analyser.Factor do
     score =
       Regex.scan(~r/[[:digit:]]{2,}(?=[0-9])/u, password)
       |> List.flatten()
-      |> Enum.map(fn set -> String.length(set) * 2 end)
+      |> Enum.map(fn set -> String.length(set) end)
       |> Enum.reduce(0, fn int, acc -> int + acc end)
 
     {:deduction, score * -1}
   end
 
-  def check(:seq_numbers, password) do
+  def check(:sequential_numbers, password) do
     sequential_score =
       Enum.chunk_every(0..10, 3, 1, :discard)
       |> Enum.map(fn set -> Enum.join(set) end)
@@ -149,7 +147,7 @@ defmodule Analyser.Factor do
     {:deduction, (sequential_score + reverse_sequential_score) * 3 * -1}
   end
 
-  def check(:seq_alpha, password) do
+  def check(:sequential_alpha, password) do
     normalized = String.downcase(password)
 
     sequential_score =
@@ -166,9 +164,8 @@ defmodule Analyser.Factor do
     {:deduction, (sequential_score + reverse_sequential_score) * 3 * -1}
   end
 
-  def check(:seq_symbols, password) do
-    # TO-DO
-
+  def check(:sequential_symbols, password) do
+    # Sequential based on the full-sized QWERTY keyboard
     sequential_score =
       Enum.chunk_every(@symbols, 3, 1, :discard)
       |> Enum.map(fn set -> to_string(set) end)
