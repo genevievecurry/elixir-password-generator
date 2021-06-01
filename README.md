@@ -157,3 +157,13 @@ iex()> Password.analyze("your-secure-password")
 }
 
 ```
+
+## To-Dos
+
+There are a few things that deserve a little more attention at this point:
+
+1. The `middle` factor for password analysis is not completed. I'm on the fence about its value. It is meant to test if there are numbers or symbols in the middle of the password string (not just at the start or end).
+
+2. Additional tests. Testing is a bit minimalist at this point; admittedly as someone who has been doing front-end development for the last decade, I'm not in the TDD club and writing tests for a language as I am learning it seems like a little too much extra overhead at this point.
+
+3. Better documentation. I hear that one of the fantastic benefits of using Elixir is the inlined documentation.
