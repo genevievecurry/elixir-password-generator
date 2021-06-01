@@ -1,6 +1,6 @@
-defmodule PasswordGenerator.Modifier do
-  alias PasswordGenerator.Random
-  alias PasswordGenerator.Constant
+defmodule Password.Modifier do
+  alias Password.Random
+  alias Password.Constant
 
   # ["@", "%", "+", "!", "#", "$", "?", "-", "_", "."]
   @legal_symbols Constant.legal_symbols()

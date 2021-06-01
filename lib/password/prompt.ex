@@ -1,8 +1,8 @@
-defmodule PasswordGenerator.Prompt do
-  alias PasswordGenerator.Validator
-  alias PasswordGenerator.Generator
-  alias PasswordGenerator.Options
-  alias PasswordGenerator.Constant
+defmodule Password.Prompt do
+  alias Password.Validator
+  alias Password.Generator
+  alias Password.Options
+  alias Password.Constant
 
   @legal_length Constant.legal_length()
 
@@ -24,26 +24,6 @@ defmodule PasswordGenerator.Prompt do
     end
   end
 
-  def memorable_prompt do
-    min = @legal_length.memorable[:min]
-    max = @legal_length.memorable[:max]
-
-    if IO.gets("Use defaults? Y/N\n") |> Validator.bool_input() do
-      Generator.memorable(%Options{})
-    else
-      %Options{
-        word_count:
-          IO.gets("How many words? Between #{min} - #{max}\n")
-          |> Validator.check_length_input(min, max),
-        uppercase: IO.gets("Include uppercase? Y/N\n") |> Validator.bool_input(),
-        separator_type: IO.gets("What type of separator?\n") |> Validator.separator_input(),
-        numbers: IO.gets("Append number? Y/N\n") |> Validator.bool_input(),
-        symbols: IO.gets("Append symbol? Y/N\n") |> Validator.bool_input()
-      }
-      |> Generator.memorable()
-    end
-  end
-
   def random_prompt do
     min = @legal_length.random[:min]
     max = @legal_length.random[:max]
@@ -59,6 +39,28 @@ defmodule PasswordGenerator.Prompt do
         numbers: IO.gets("Include numbers? Y/N\n") |> Validator.bool_input()
       }
       |> Generator.random()
+    end
+  end
+
+  def memorable_prompt do
+    min = @legal_length.memorable[:min]
+    max = @legal_length.memorable[:max]
+
+    if IO.gets("Use defaults? Y/N\n") |> Validator.bool_input() do
+      Generator.memorable(%Options{})
+    else
+      %Options{
+        word_count:
+          IO.gets("How many words? Between #{min} - #{max}\n")
+          |> Validator.check_length_input(min, max),
+        uppercase: IO.gets("Include uppercase? Y/N\n") |> Validator.bool_input(),
+        separator_type:
+          IO.gets("What type of separator? (symbols, hypens, periods, etc)\n")
+          |> Validator.separator_input(),
+        numbers: IO.gets("Append number? Y/N\n") |> Validator.bool_input(),
+        symbols: IO.gets("Append symbol? Y/N\n") |> Validator.bool_input()
+      }
+      |> Generator.memorable()
     end
   end
 

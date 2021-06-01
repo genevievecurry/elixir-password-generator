@@ -1,4 +1,4 @@
-defmodule PasswordGenerator.Options do
+defmodule Password.Options do
   @moduledoc """
   This module sets the default options for password generation.
 

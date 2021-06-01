@@ -1,4 +1,4 @@
-defmodule PasswordGenerator.MixProject do
+defmodule Password.MixProject do
   use Mix.Project
 
   def project do

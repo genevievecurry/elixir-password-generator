@@ -1,4 +1,4 @@
-defmodule PasswordGenerator do
+defmodule Password do
   @moduledoc """
   A basic password generation module that can create three types of passwords: Random, Memorable, and PIN.
 
@@ -8,14 +8,26 @@ defmodule PasswordGenerator do
 
 
   ## Examples
-      iex> PasswordGenerator.start()
+      iex> Password.start()
 
 
   """
-  alias PasswordGenerator.Generator
-  alias PasswordGenerator.Options
+  alias Password.Generator
+  alias Password.Options
+  alias Password.Analyzer
 
   def random(options \\ %Options{}), do: Generator.random(options)
   def memorable(options \\ %Options{}), do: Generator.memorable(options)
   def pin(options \\ %Options{}), do: Generator.pin(options)
+
+  @spec analyze(String.t()) :: map()
+  def(analyze(password)) do
+    score = Analyzer.score(password)
+
+    %{
+      score: score,
+      strength: Analyzer.strength(score),
+      results: Analyzer.results(password)
+    }
+  end
 end

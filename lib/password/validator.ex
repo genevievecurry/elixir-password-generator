@@ -1,4 +1,4 @@
-defmodule PasswordGenerator.Validator do
+defmodule Password.Validator do
   @spec parse_integer(binary) :: :error | {integer, binary}
   def parse_integer(value) do
     case value |> String.trim() |> Integer.parse() do

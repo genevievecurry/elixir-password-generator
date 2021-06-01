@@ -1,4 +1,4 @@
-defmodule PasswordGenerator.Constant do
+defmodule Password.Constant do
   # @legal_symbols ["!", "#", "$", "%", "+","-", ".","?", "@", "_"]
   @legal_symbols [33, 35, 36, 37, 43, 45, 46, 63, 64, 95]
   @legal_digits 0..9

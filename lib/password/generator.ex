@@ -1,8 +1,8 @@
-defmodule PasswordGenerator.Generator do
-  alias PasswordGenerator.Constant
-  alias PasswordGenerator.Random
-  alias PasswordGenerator.Modifier
-  alias PasswordGenerator.Validator
+defmodule Password.Generator do
+  alias Password.Constant
+  alias Password.Random
+  alias Password.Modifier
+  alias Password.Validator
 
   @separator_types Constant.separator_types()
   @legal_length Constant.legal_length()
@@ -17,13 +17,6 @@ defmodule PasswordGenerator.Generator do
             }
         ) :: binary
   def random(options) do
-    # Length 8-100
-    # Options: Symbols / Numbers
-    # Ex: xXNGyJHRhPMvzQcxoEtbcYrevaYrrHXeszDnyhx - no numbers, no symbols
-    # Ex: c__-bMaJJq.!WT-GHwwHGvefVfwxDZW_gMsgqBk - symbols
-    # Ex: 6Fu7P9KnZpaKkYVyZogTKNCVtsGfPs8JpYGcFZd - numbers
-    # Ex: K9*z@cLETLXreigcgiq*mWPEQavCGojRTZnDhG2 - numbers and symbols
-
     (Random.new(:lowercase, options.character_count) <>
        Random.new(:uppercase, options.character_count))
     |> Modifier.include_symbols(options.symbols, Random.new(:symbol, options.character_count))
@@ -44,16 +37,7 @@ defmodule PasswordGenerator.Generator do
             }
         ) :: binary
   def memorable(options) do
-    # How many words 3-15
-    # Options: Capitalize / Full Words
-    # Separator Type
-    # sir-vaff-ghir
-    # figurine-having-DROOPY
-    # winy poseur compline
-    # funerary.shift.MAXIMAL
-
     Random.start_link()
-
     separator = @separator_types[options.separator_type]
 
     Random.new(:word, options.word_count)

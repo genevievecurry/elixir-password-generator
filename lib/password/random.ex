@@ -1,6 +1,6 @@
-defmodule PasswordGenerator.Random do
+defmodule Password.Random do
   use Agent
-  alias PasswordGenerator.Constant
+  alias Password.Constant
 
   # ["@", "%", "+", "!", "#", "$", "?", "-", "_", "."]
   @legal_symbols Constant.legal_symbols()

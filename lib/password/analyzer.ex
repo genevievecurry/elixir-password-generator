@@ -1,4 +1,8 @@
-defmodule Analyser.Factor do
+defmodule Password.Analyzer do
+  @moduledoc """
+  Analyses password strength.
+  """
+
   @alpha 'abcdefghijklmnopqrstuvwxyz'
   @symbols '`!@#$%^&*()-='
   @factors [
@@ -18,8 +22,8 @@ defmodule Analyser.Factor do
     :sequential_alpha,
     :sequential_symbols
   ]
-
-  def check(type, password)
+  @spec check(atom, String.t()) :: tuple()
+  def(check(type, password))
 
   def check(:length, password) do
     {:addition, String.length(password) * 4}
@@ -182,12 +186,23 @@ defmodule Analyser.Factor do
     {:deduction, (sequential_score + reverse_sequential_score) * 3 * -1}
   end
 
+  @spec results(String.t()) :: list
+  def(results(password)) do
+    Enum.map(@factors, fn factor -> {factor, check(factor, password)} end)
+  end
+
+  @spec score(String.t()) :: Integer
   def score(password) do
     Enum.map(@factors, fn factor -> check(factor, password) end)
     |> Enum.reduce(0, fn {_key, val}, acc -> val + acc end)
   end
 
-  def results(password) do
-    Enum.map(@factors, fn factor -> {factor, check(factor, password)} end)
+  @spec strength(integer) :: integer()
+  def strength(score) do
+    cond do
+      score >= 150 -> 100
+      score > 0 and score < 150 -> round(score / 150 * 100)
+      true -> 0
+    end
   end
 end
