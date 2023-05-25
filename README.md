@@ -2,6 +2,8 @@
 
 This is a simple password generator and password analysis tool. It is not optimized for use in production situations, as it was developed as a project to teach myself Elixir.
 
+You can see it in action in a separate project (using Phoenix for a UI) here: https://phoenix-password-generator.fly.dev/
+
 There are a few different ways to interact with the tool:
 
 - Start a session in iex and generate passwords using default settings, or by using the IO prompts, which allow you to set passwords a little more conversationally.
